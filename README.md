@@ -92,7 +92,7 @@ This uses **Autocannon** to benchmark both servers (`src/performance/express-ser
 ```
 fastify-playground/
 ├── src/
-│   ├── index.ts                  # Main Fastify entry
+│   ├── server.ts                  # Main Fastify entry
 │   └── performance/
 │       ├── express-server.ts     # Express test server
 │       ├── fastify-server.ts     # Fastify test server
@@ -150,6 +150,16 @@ Pre-commit hooks automatically lint and format staged files via **Husky** and **
 
 This project is about **exploring**, **measuring**, and **growing** — learning Fastify’s modern patterns and its advantages over Express.
 It’s not a production app; it’s a journey into better backend design and performance.
+
+---
+
+## 🗺️ Fastify Learning Roadmap
+
+If you're looking to **learn Fastify step-by-step**, check out the dedicated roadmap guide:
+
+👉 [View the Fastify Developer Roadmap →](./FASTIFY_ROADMAP.md)
+
+It’s a complete, phase-based learning path covering everything from **Fastify fundamentals** to **production-ready practices** and **open-source contribution**.
 
 ---
 
