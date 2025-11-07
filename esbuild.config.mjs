@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 await build({
-  entryPoints: ['src/index.ts'],
+  entryPoints: ['src/server.ts'],
   bundle: true,
   platform: 'node',
   format: 'cjs',

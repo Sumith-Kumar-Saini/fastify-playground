@@ -6,7 +6,7 @@
     "dev": "nodemon",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "build": "node ./esbuild.config.mjs",
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --fix",
@@ -60,6 +60,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
     "nodemon": "^3.1.10",
+    "pino-pretty": "^13.1.2",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
@@ -67,6 +68,7 @@
   },
   "dependencies": {
     "express": "^5.1.0",
-    "fastify": "^5.6.1"
+    "fastify": "^5.6.1",
+    "pino": "^10.1.0"
   }
 }
