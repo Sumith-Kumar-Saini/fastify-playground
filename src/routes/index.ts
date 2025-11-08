@@ -1,9 +1,10 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyPluginCallback } from 'fastify';
 
-function routes(fastify: FastifyInstance) {
+const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
   fastify.get('/', () => {
     return { hello: 'world' };
   });
-}
+  done();
+};
 
 export default routes;

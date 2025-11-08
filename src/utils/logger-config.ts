@@ -1,8 +1,6 @@
-import pino from 'pino';
-
 const isDev = process.env.NODE_ENV !== 'production';
 
-const logger = pino({
+const logger = {
   level: process.env.LOG_LEVEL || 'info',
   transport: isDev
     ? {
@@ -14,6 +12,6 @@ const logger = pino({
         },
       }
     : undefined, // In production, keep structured JSON
-});
+};
 
 export default logger;

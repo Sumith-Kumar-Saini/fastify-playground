@@ -153,13 +153,16 @@ It’s not a production app; it’s a journey into better backend design and per
 
 ---
 
-## 🗺️ Fastify Learning Roadmap
+## 🧭 Developer Learning Resources
 
-If you're looking to **learn Fastify step-by-step**, check out the dedicated roadmap guide:
+Enhance your understanding of Fastify with in-depth guides and documentation:
 
-👉 [View the Fastify Developer Roadmap →](./FASTIFY_ROADMAP.md)
+| Resource                                            | Description                                                                  |
+| --------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 🗺️ [Fastify Roadmap](./docs/fastify-roadmap.md)     | Step-by-step learning path — from fundamentals to production-ready patterns. |
+| 🔁 [Fastify Lifecycle](./docs/fastify-lifecycle.md) | Detailed overview of Fastify’s internal hooks, flow, and request lifecycle.  |
 
-It’s a complete, phase-based learning path covering everything from **Fastify fundamentals** to **production-ready practices** and **open-source contribution**.
+More guides will be added soon — covering **plugins**, **testing**, **error handling**, and **deployment**.
 
 ---
 
