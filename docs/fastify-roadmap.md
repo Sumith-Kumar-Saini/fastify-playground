@@ -35,7 +35,6 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 
 **Resources:**
 - [📘 Fastify Documentation](https://www.fastify.dev)
-- [🎥 Fastify Introduction - Node.js Framework](https://www.example.com/fastify-introduction)
 
 ---
 
@@ -46,8 +45,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - Test using `curl` or a browser
 
 **Resources:**
-- [📘 Getting Started Guide](https://www.fastify.dev/docs/latest/Getting-Started)
-- [💻 Simple Server Example](https://www.github.com/example/fastify-simple-server)
+- [📘 Getting Started Guide](https://fastify.dev/docs/latest/Guides/Getting-Started)
 
 ---
 
@@ -58,8 +56,8 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - Explore the Fastify instance and its methods
 
 **Resources:**
-- [📘 Concepts Documentation](https://www.fastify.dev/docs/latest/Reference/Concepts)
-- [🧠 Deep Dive into Fastify Core](https://www.example.com/fastify-core-concepts)
+- [📘 Concepts Documentation](https://fastify.dev/docs/latest/Reference)
+- [🧠 Deep Dive into Fastify Core](https://www.google.com/search?q=fastify-core-concepts)
 
 ---
 
@@ -72,7 +70,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 
 **Resources:**
 - [📘 Routing Docs](https://www.fastify.dev/docs/latest/Reference/Routes)
-- [📝 Advanced Routing Techniques](https://www.example.com/fastify-advanced-routing)
+- [📝 Advanced Routing Techniques](https://www.google.com/search?q=fastify-advanced-routing)
 
 ---
 
@@ -85,7 +83,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 **Resources:**
 - [🔌 @fastify/sensible](https://github.com/fastify/fastify-sensible)
 - [⚡ fast-json-stringify](https://github.com/fastify/fast-json-stringify)
-- [🧩 Validation Best Practices](https://www.example.com/fastify-validation-serialization)
+- [🧩 Validation Best Practices](https://www.google.com/search?q=fastify-validation-serialization)
 
 ---
 
@@ -99,7 +97,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - [📘 Plugins Docs](https://www.fastify.dev/docs/latest/Reference/Plugins)
 - [🍪 fastify-cookie](https://github.com/fastify/fastify-cookie)
 - [📂 fastify-static](https://github.com/fastify/fastify-static)
-- [🧠 Mastering Fastify Plugins](https://www.example.com/fastify-plugins-mastery)
+- [🧠 Mastering Fastify Plugins](https://www.google.com/search?q=fastify-plugins-mastery)
 
 ---
 
@@ -115,7 +113,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - [🔌 @fastify/middie](https://github.com/fastify/middie)
 - [📘 Hooks Docs](https://www.fastify.dev/docs/latest/Reference/Hooks)
 - [📘 Decorators Docs](https://www.fastify.dev/docs/latest/Reference/Decorators)
-- [🧩 Hooks & Decorators Explained](https://www.example.com/fastify-hooks-decorators)
+- [🧩 Hooks & Decorators Explained](https://www.google.com/search?q=fastify-hooks-decorators)
 
 ---
 
@@ -128,7 +126,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 **Resources:**
 - [📘 Error Handling Docs](https://www.fastify.dev/docs/latest/Reference/Error-Handling)
 - [🔌 @fastify/sensible](https://github.com/fastify/fastify-sensible)
-- [🧩 Effective Error Handling](https://www.example.com/fastify-error-handling)
+- [🧩 Effective Error Handling](https://www.google.com/search?q=fastify-error-handling)
 
 ---
 
@@ -141,7 +139,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - [📘 Performance Guide](https://www.fastify.dev/docs/latest/Guides/Performance)
 - [🔌 fastify-caching](https://github.com/p-kraszewski/fastify-caching)
 - [🧰 Clinic.js](https://clinicjs.org/)
-- [⚡ Optimizing Fastify](https://www.example.com/fastify-performance-optimization)
+- [⚡ Optimizing Fastify](https://www.google.com/search?q=fastify-performance-optimization)
 
 ---
 
@@ -156,7 +154,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - [🧩 Prisma](https://www.prisma.io/)
 - [🧩 Sequelize](https://sequelize.org/)
 - [🧩 Knex.js](http://knexjs.org/)
-- [📘 Database Integration Guide](https://www.example.com/fastify-database-integration)
+- [📘 Database Integration Guide](https://www.google.com/search?q=fastify-database-integration)
 
 ---
 
@@ -168,7 +166,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 **Resources:**
 - [🔌 @fastify/jwt](https://github.com/fastify/fastify-jwt)
 - [🔌 @fastify/oauth2](https://github.com/fastify/fastify-oauth2)
-- [🧩 Security Best Practices](https://www.example.com/fastify-authentication-authorization)
+- [🧩 Security Best Practices](https://www.google.com/search?q=fastify-authentication-authorization)
 
 ---
 
@@ -180,7 +178,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 **Resources:**
 - [🔌 @fastify/multipart](https://github.com/fastify/fastify-multipart)
 - [🔌 @fastify/static](https://github.com/fastify/fastify-static)
-- [🧩 File Handling Guide](https://www.example.com/fastify-file-uploads-static-files)
+- [🧩 File Handling Guide](https://www.google.com/search?q=fastify-file-uploads-static-files)
 
 ---
 
@@ -193,7 +191,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 
 **Resources:**
 - [📘 TypeScript Guide](https://www.fastify.dev/docs/latest/Guides/TypeScript)
-- [🧩 Fastify + TS Article](https://www.example.com/fastify-typescript)
+- [🧩 Fastify + TS Article](https://www.google.com/search?q=fastify-typescript)
 
 ---
 
@@ -207,7 +205,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - [🧪 Jest](https://jestjs.io/)
 - [🧪 Mocha](https://mochajs.org/)
 - [🧪 Tap](https://node-tap.org/)
-- [🧩 Testing Strategies](https://www.example.com/fastify-testing)
+- [🧩 Testing Strategies](https://www.google.com/search?q=fastify-testing)
 
 ---
 
@@ -217,7 +215,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - Implement DI, config management, and health checks
 
 **Resources:**
-- [🏗️ Architecting Fastify Apps](https://www.example.com/fastify-architecture)
+- [🏗️ Architecting Fastify Apps](https://www.google.com/search?q=fastify-architecture)
 
 ---
 
@@ -232,7 +230,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - [🔌 fastify-pino](https://github.com/pinojs/fastify-pino)
 - [📈 Prometheus](https://prometheus.io/)
 - [📊 Grafana](https://grafana.com/)
-- [🧩 Logging & Monitoring Guide](https://www.example.com/fastify-logging-monitoring)
+- [🧩 Logging & Monitoring Guide](https://www.google.com/search?q=fastify-logging-monitoring)
 
 ---
 
@@ -242,7 +240,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - Implement rate limiting and secure headers
 
 **Resources:**
-- [🧩 Security Best Practices](https://www.example.com/fastify-security)
+- [🧩 Security Best Practices](https://www.google.com/search?q=fastify-security)
 
 ---
 
@@ -252,7 +250,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - Use load balancers and CI/CD
 
 **Resources:**
-- [🚀 Deployment Guide](https://www.example.com/fastify-deployment-scaling)
+- [🚀 Deployment Guide](https://www.google.com/search?q=fastify-deployment-scaling)
 
 ---
 
@@ -264,7 +262,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - Implement SSR and secure APIs
 
 **Resources:**
-- [🧩 Frontend Integration Guide](https://www.example.com/fastify-frontend-integration)
+- [🧩 Frontend Integration Guide](https://www.google.com/search?q=fastify-frontend-integration)
 
 ---
 
@@ -276,7 +274,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 **Resources:**
 - [🔌 mercurius](https://mercurius.dev/)
 - [🔌 fastify-gql](https://github.com/mcollina/fastify-gql)
-- [🧩 GraphQL & Realtime Guide](https://www.example.com/fastify-graphql-realtime)
+- [🧩 GraphQL & Realtime Guide](https://www.google.com/search?q=fastify-graphql-realtime)
 
 ---
 
@@ -286,7 +284,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - Use message queues and API gateways
 
 **Resources:**
-- [🧩 Microservices & Serverless Guide](https://www.example.com/fastify-microservices-serverless)
+- [🧩 Microservices & Serverless Guide](https://www.google.com/search?q=fastify-microservices-serverless)
 
 ---
 
@@ -298,7 +296,7 @@ This roadmap is designed to guide you from **beginner to advanced Fastify develo
 - Include logging, DB, and auth
 
 **Resources:**
-- [🧩 Boilerplate Guide](https://www.example.com/fastify-boilerplate)
+- [🧩 Boilerplate Guide](https://www.google.com/search?q=fastify-boilerplate)
 
 ---
 
