@@ -4,10 +4,6 @@ info:
   description: |
     This is the API for the **fastify-playground** project. It is designed to demonstrate and teach Fastify fundamentals, including routes, validation, error handling, and integration with MongoDB using Mongoose.
   version: 1.0.0
-  contact:
-    name: Fastify Playground Team
-    email: team@fastifyplayground.com
-    url: https://fastifyplayground.com
 
 servers:
   - url: http://localhost:3000
