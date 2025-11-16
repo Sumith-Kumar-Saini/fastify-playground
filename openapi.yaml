@@ -1,0 +1,232 @@
+openapi: 3.1.0
+info:
+  title: Fastify Playground API
+  description: |
+    This is the API for the **fastify-playground** project. It is designed to demonstrate and teach Fastify fundamentals, including routes, validation, error handling, and integration with MongoDB using Mongoose.
+  version: 1.0.0
+  contact:
+    name: Fastify Playground Team
+    email: team@fastifyplayground.com
+    url: https://fastifyplayground.com
+
+servers:
+  - url: http://localhost:3000
+    description: Local Development Server
+
+paths:
+  /ping:
+    get:
+      summary: 'Health check endpoint'
+      operationId: pingCheck
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+
+  /users:
+    get:
+      summary: 'Get all users'
+      description: |
+        Fetches a list of all registered users from the MongoDB database.
+        This endpoint demonstrates the use of Fastify routes and basic GET operations.
+      operationId: getUsers
+      tags:
+        - Users
+      responses:
+        '200':
+          description: 'Successfully retrieved list of users'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: 'Create a new user'
+      description: |
+        Creates a new user in the database with the provided name and email.
+        This endpoint demonstrates handling POST requests, body parsing, and data validation.
+      operationId: createUser
+      tags:
+        - Users
+      requestBody:
+        description: 'User object that needs to be created.'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: 'User successfully created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Invalid user data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{userId}:
+    get:
+      summary: 'Get a user by ID'
+      description: |
+        Fetches a user by their unique ID. This demonstrates how to handle path parameters
+        in Fastify and fetch specific data from MongoDB.
+      operationId: getUserById
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: 'ID of the user to retrieve'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Successfully retrieved user'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: 'User not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: 'Update a user by ID'
+      description: |
+        Updates an existing user based on the provided ID. This demonstrates how to handle PUT
+        requests and update data in MongoDB. Validation is also performed on the request body.
+      operationId: updateUserById
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: 'ID of the user to update'
+          schema:
+            type: string
+      requestBody:
+        description: 'User object that needs to be updated.'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: 'User successfully updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Invalid user data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'User not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: 'Delete a user by ID'
+      description: |
+        Deletes a user from the database based on the provided ID. This shows how to handle DELETE requests
+        and perform data removal from MongoDB.
+      operationId: deleteUserById
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: 'ID of the user to delete'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'User successfully deleted'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: 'User not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          description: 'The name of the user.'
+        email:
+          type: string
+          description: 'The email of the user.'
+          format: email
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: 'Error message describing the issue.'
+        code:
+          type: integer
+          description: 'HTTP status code of the error.'
