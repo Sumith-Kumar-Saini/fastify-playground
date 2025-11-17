@@ -4,15 +4,18 @@ export interface IUser {
   email: string;
   name: string;
   createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IUserDoc extends IUser, Document {}
 
-const UserSchema = new Schema<IUserDoc>({
-  email: { type: String, required: true, unique: true },
-  name: { type: String, required: true },
-  createdAt: { type: Date, default: () => new Date() },
-});
+const UserSchema = new Schema<IUserDoc>(
+  {
+    email: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+  },
+  { timestamps: true },
+);
 
 export const createUserModel = (connection: mongoose.Connection): Model<IUserDoc> => {
   try {

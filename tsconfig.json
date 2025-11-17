@@ -14,9 +14,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "types": []
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"],
   "ignorePatterns": ["dist/**"]
 }

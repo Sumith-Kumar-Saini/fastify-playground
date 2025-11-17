@@ -1,19 +1,22 @@
 import { FastifyInstance, FastifyPluginCallback } from 'fastify';
+import { QueryLimitSchema, UserListResponseSchema } from './user.schema';
+import { getAllUsers } from './user.controller';
+import { ErrorSchema } from '../../schemas/error.schema';
 
 const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
-  const { User } = fastify.models;
-  fastify.get('/users', (request, reply) => {
-    try {
-      const { limit: _limit }: { limit?: string } = request.query || {};
-      const limit = _limit ? 10 : Math.min(parseInt(_limit!, 10), 50);
-      const users = User.find({}).limit(limit).lean();
-      return users;
-    } catch (err) {
-      fastify.log.error(err);
-      reply.status(500);
-      return { message: "Can't get users", code: 500 };
-    }
-  });
+  fastify.get(
+    '/users',
+    {
+      schema: {
+        querystring: QueryLimitSchema,
+        response: {
+          200: UserListResponseSchema,
+          500: ErrorSchema,
+        },
+      },
+    },
+    getAllUsers,
+  );
 
   done();
 };
