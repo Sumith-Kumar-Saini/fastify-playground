@@ -1,24 +1,25 @@
 import Fastify from 'fastify';
+import ENV from './configs/env';
 import logger from './utils/logger-config';
-import routes from './routes';
-import { connectDB } from './configs/database';
+import routes from './routes/users';
+import mongoPlugin from './plugins/mongoose';
+import modelsPlugin from './plugins/models';
 
 const fastify = Fastify({ logger });
-const PORT = parseInt(process.env.PORT || '3000', 10);
-const HOST = process.env.HOST || '127.0.0.1';
 
 // --- Ping Route ----
 fastify.get('/ping', () => 'pong\n');
 
-// --- Register Database ---
-fastify.register(connectDB);
+// --- Register Database / Models ---
+fastify.register(mongoPlugin, { uri: ENV.MONGO_URI });
+fastify.register(modelsPlugin);
 
 // --- Register routes ---
-fastify.register(routes, { prefix: '/' });
+fastify.register(routes);
 
 const start = async () => {
   try {
-    await fastify.listen({ port: PORT, host: HOST });
+    await fastify.listen({ port: ENV.PORT, host: ENV.HOST });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

@@ -1,13 +1,23 @@
-import mongoose, { Document, model, Schema, Types } from 'mongoose';
+import mongoose, { Document, Model, Schema } from 'mongoose';
 
-export interface IUser extends Document<Types.ObjectId> {
-  name: string;
+export interface IUser {
   email: string;
+  name: string;
+  createdAt?: Date;
 }
 
-const UserSchema = new Schema<IUser>({
-  name: String,
-  email: String,
+export interface IUserDoc extends IUser, Document {}
+
+const UserSchema = new Schema<IUserDoc>({
+  email: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  createdAt: { type: Date, default: () => new Date() },
 });
 
-export const User = mongoose.models.User || model<IUser>('User', UserSchema);
+export const createUserModel = (connection: mongoose.Connection): Model<IUserDoc> => {
+  try {
+    return connection.model<IUserDoc>('User');
+  } catch {
+    return connection.model<IUserDoc>('User', UserSchema);
+  }
+};

@@ -1,7 +1,9 @@
-import * as mongoose from 'mongoose';
+import { Connection } from 'mongoose';
+import { Models } from '../plugins/models';
 
 declare module 'fastify' {
   interface FastifyInstance {
-    mongoose: typeof mongoose;
+    mongo: Connection;
+    models: Models;
   }
 }
