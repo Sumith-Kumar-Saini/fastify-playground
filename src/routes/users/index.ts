@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyPluginCallback } from 'fastify';
 import { QueryLimitSchema, UserListResponseSchema } from './user.schema';
-import { getAllUsers } from './user.controller';
+import { createUser, getAllUsers } from './user.controller';
 import { ErrorSchema } from '../../schemas/error.schema';
+import { UserSchema } from '../../schemas/user.schema';
 
 const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
   fastify.get(
@@ -16,6 +17,27 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
       },
     },
     getAllUsers,
+  );
+
+  fastify.post(
+    '/users',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            email: { type: 'string', format: 'email' },
+          },
+          required: ['name', 'email'],
+        },
+        response: {
+          201: UserSchema,
+          500: ErrorSchema,
+        },
+      },
+    },
+    createUser,
   );
 
   done();
