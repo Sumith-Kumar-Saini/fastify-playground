@@ -33,6 +33,8 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
         },
         response: {
           201: UserSchema,
+          400: ErrorSchema,
+          409: ErrorSchema,
           500: ErrorSchema,
         },
       },
