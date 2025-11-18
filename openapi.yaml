@@ -3,7 +3,7 @@ info:
   title: Fastify Playground API
   description: |
     This is the API for the **fastify-playground** project. It is designed to demonstrate and teach Fastify fundamentals, including routes, validation, error handling, and integration with MongoDB using Mongoose.
-  version: 1.0.0
+  version: 1.0.2
 
 servers:
   - url: http://localhost:3000
@@ -219,14 +219,21 @@ components:
           format: email
     Error:
       type: object
+      required:
+        - statusCode
+        - code
+        - error
+        - message
       properties:
+        statusCode:
+          type: integer
+          description: 'The HTTP status code.'
+        code:
+          type: string
+          description: 'The application-specific error code.'
+        error:
+          type: string
+          description: 'The standard HTTP reason phrase.'
         message:
           type: string
-          description: 'A human-readable error message.'
-        status:
-          type: integer
-          description: 'HTTP status code of the error.'
-        timestamp:
-          type: string
-          format: date-time
-          description: 'The timestamp when the error occurred.'
+          description: 'A human-readable error description.'
