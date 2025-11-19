@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginCallback } from 'fastify';
 import { QueryLimitSchema, UserListResponseSchema } from './user.schema';
-import { createUser, getAllUsers } from './user.controller';
+import { createUser, getAllUsers, editUser } from './user.controller';
 import { ErrorSchema } from '../../schemas/error.schema';
 import { UserSchema } from '../../schemas/user.schema';
 
@@ -41,6 +41,8 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
     },
     createUser,
   );
+
+  fastify.put('/users/:userId', {}, editUser);
 
   done();
 };
