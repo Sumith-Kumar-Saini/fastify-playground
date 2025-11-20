@@ -42,7 +42,32 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
     createUser,
   );
 
-  fastify.put('/users/:userId', {}, editUser);
+  fastify.put(
+    '/users/:userId',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          properties: {
+            userId: {
+              type: 'string',
+              minLength: 24,
+              pattern: '^[0-9a-fA-F]{24}$',
+            },
+          },
+          required: ['userId'],
+        },
+        body: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            email: { type: 'string', format: 'email' },
+          },
+        },
+      },
+    },
+    editUser,
+  );
 
   done();
 };

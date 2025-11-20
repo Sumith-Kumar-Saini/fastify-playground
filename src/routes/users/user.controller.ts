@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { IUser, IUserDoc } from '../../models/user';
+import { IUser } from '../../models/user';
 import { Error as MongooseError } from 'mongoose';
 
 // 1. Define types for clarity

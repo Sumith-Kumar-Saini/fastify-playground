@@ -1,14 +1,26 @@
+@hostname=localhost
+@port=3000
+@baseUrl={{hostname}}:{{port}}
+
 ### Health check endpoint
-GET http://localhost:3000/ping HTTP/1.1
+GET http://{{baseUrl}}/ping HTTP/1.1
 
 ### Get all users
-GET http://localhost:3000/users?limit=10 HTTP/1.1
+GET http://{{baseUrl}}/users HTTP/1.1
 
 ### Create a new user
-POST http://localhost:3000/users HTTP/1.1
+POST http://{{baseUrl}}/users HTTP/1.1
 Content-Type: application/json
 
 {
     "name": "test",
     "email": "test@email.com"
+}
+
+### Update a exiting User
+PUT http://{{baseUrl}}/users/691c75d15e45304d3a197590 HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "test@test.com"
 }
