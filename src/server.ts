@@ -1,29 +1,43 @@
-import Fastify from 'fastify';
 import ENV from './configs/env';
-import logger from './utils/logger-config';
-import routes from './routes/users';
-import mongoPlugin from './plugins/mongoose';
-import modelsPlugin from './plugins/models';
+import { buildApp } from './app';
 
-const fastify = Fastify({ logger });
+const fastify = buildApp();
 
-// --- Ping Route ----
-fastify.get('/ping', () => 'pong\n');
-
-// --- Register Database / Models ---
-fastify.register(mongoPlugin, { uri: ENV.MONGO_URI });
-fastify.register(modelsPlugin);
-
-// --- Register routes ---
-fastify.register(routes);
-
-const start = async () => {
+async function startServer() {
   try {
     await fastify.listen({ port: ENV.PORT, host: ENV.HOST });
+    fastify.log.info(`Server running on http://${ENV.HOST}:${ENV.PORT}`);
   } catch (err) {
-    fastify.log.error(err);
+    fastify.log.error({ err }, 'Failed to start server');
     process.exit(1);
   }
-};
+}
 
-void start();
+// Graceful shutdown handler
+async function shutdown(signal: string) {
+  try {
+    fastify.log.info(`Received ${signal}. Shutting down gracefully...`);
+    await fastify.close();
+    fastify.log.info('Server closed. Exiting.');
+    process.exit(0);
+  } catch (err) {
+    fastify.log.error({ err }, 'Error during shutdown');
+    process.exit(1);
+  }
+}
+
+// OS signals
+process.on('SIGINT', () => void shutdown('SIGINT'));
+process.on('SIGTERM', () => void shutdown('SIGTERM'));
+
+// Catch unhandled errors
+process.on('unhandledRejection', (reason) => {
+  fastify.log.error({ reason }, 'Unhandled Rejection');
+});
+
+process.on('uncaughtException', (err) => {
+  fastify.log.error({ err }, 'Uncaught Exception');
+  void shutdown('uncaughtException');
+});
+
+void startServer();
