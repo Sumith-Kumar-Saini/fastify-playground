@@ -1,182 +1,256 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { IUser, IUserDoc } from '../../models/user';
-import { Error as MongooseError } from 'mongoose';
+import { FastifyInstance, FastifyReply, FastifyRequest, RouteGenericInterface } from 'fastify';
+import { Model } from 'mongoose';
+import { IUserDoc } from '../../models/user';
 
-// 1. Define types for clarity
-interface IGetAllUsersQuery {
+type ServerWithModels = FastifyInstance & {
+  models: {
+    User: Model<IUserDoc>;
+  };
+};
+
+type RequestWithModels<T extends RouteGenericInterface> = FastifyRequest<T> & {
+  server: ServerWithModels;
+};
+
+export interface GetUsersQuery {
   limit?: string;
 }
 
-interface ICreateUserBody {
+export interface CreateUserBody {
   name: string;
   email: string;
 }
 
-interface IParamUserId {
-  userId: string;
-}
-
-interface IEditUserBody {
+export interface EditUserBody {
   name?: string;
   email?: string;
 }
 
-// --- Controller for fetching all users ---
+export interface ParamUserId {
+  userId: string;
+}
 
+/**
+ * Utility: safe parse integer with defaults and bounds
+ */
+function parseLimit(input: string | undefined, defaultVal = 10, min = 1, max = 50): number {
+  if (!input) return defaultVal;
+  const parsed = Number.parseInt(input, 10);
+  if (Number.isNaN(parsed)) return defaultVal;
+  return Math.min(Math.max(parsed, min), max);
+}
+
+/**
+ * Utility: standard error response body factory
+ */
+function makeErrorResponse(statusCode: number, code: string, error: string, message: string) {
+  return { statusCode, code, error, message };
+}
+
+/**
+ * GET /users
+ */
 export async function getUsers(
-  request: FastifyRequest<{ Querystring: IGetAllUsersQuery }>,
+  request: RequestWithModels<{ Querystring: GetUsersQuery }>,
   reply: FastifyReply,
 ) {
+  const { User } = request.server.models;
+
   try {
-    const { User } = request.server.models;
-
-    const limitParam = request.query.limit;
-    const limit = Math.min(Math.max(parseInt(limitParam || '10', 10), 1), 50);
-
-    const users = await User.find({}).limit(limit).lean();
-    return users;
+    const limit = parseLimit(request.query.limit, 10, 1, 50);
+    const users = await User.find({}).limit(limit).lean().exec();
+    return reply.code(200).send(users);
   } catch (err) {
     request.server.log.error(err);
-    reply.status(500).send({
-      statusCode: 500,
-      code: 'INTERNAL_SERVER_ERROR',
-      error: 'Internal Server Error',
-      message: 'An unexpected server error occurred while fetching users.',
-    });
+    return reply
+      .code(500)
+      .send(
+        makeErrorResponse(
+          500,
+          'INTERNAL_SERVER_ERROR',
+          'Internal Server Error',
+          'An unexpected server error occurred while fetching users.',
+        ),
+      );
   }
 }
 
-// --- Controller for fetching single user ---
-
+/**
+ * GET /users/:userId
+ */
 export async function getUserById(
-  request: FastifyRequest<{ Params: IParamUserId }>,
+  request: RequestWithModels<{ Params: ParamUserId }>,
   reply: FastifyReply,
 ) {
+  const { User } = request.server.models;
+  const { userId } = request.params;
+
   try {
-    const userId = request.params.userId;
-    const { User } = request.server.models;
-    const user = await User.findById<IUserDoc>(userId).lean();
-
+    const user = await User.findById(userId).lean().exec();
     if (!user) {
-      reply.status(404);
-      return {
-        statusCode: 404,
-        code: 'NOT_FOUND',
-        error: 'User Not Found',
-        message: 'The requested user resource could not be found.',
-      };
+      return reply
+        .code(404)
+        .send(
+          makeErrorResponse(
+            404,
+            'NOT_FOUND',
+            'User Not Found',
+            'The requested user resource could not be found.',
+          ),
+        );
     }
-
-    return user;
+    return reply.code(200).send(user);
   } catch (err) {
     request.server.log.error(err);
-    reply.status(500).send({
-      statusCode: 500,
-      code: 'INTERNAL_SERVER_ERROR',
-      error: 'Internal Server Error',
-      message: 'An unexpected server error occurred while fetching users.',
-    });
+    return reply
+      .code(500)
+      .send(
+        makeErrorResponse(
+          500,
+          'INTERNAL_SERVER_ERROR',
+          'Internal Server Error',
+          'An unexpected server error occurred while fetching the user.',
+        ),
+      );
   }
 }
 
-// --- Controller for creating a user ---
-
+/**
+ * POST /users
+ */
 export async function createUser(
-  request: FastifyRequest<{ Body: ICreateUserBody }>,
+  request: RequestWithModels<{ Body: CreateUserBody }>,
   reply: FastifyReply,
 ) {
+  const { User } = request.server.models;
+  const { name, email } = request.body;
+
   try {
-    const { User } = request.server.models;
-    const { name, email } = request.body;
-
-    const user = new User<IUser>({ name, email });
-    await user.save();
-
-    reply.status(201).send(user);
-  } catch (err) {
+    const created = new User({ name, email });
+    await created.save();
+    // return saved document (toJSON/lean would be optional depending on model hooks)
+    return reply.code(201).send(created);
+  } catch (err: unknown) {
     request.server.log.error(err);
-    if (err instanceof MongooseError.CastError || (err as any).code === 11000) {
-      reply.status(409).send({
-        statusCode: 409,
-        code: 'DUPLICATE_RESOURCE',
-        error: 'Conflict',
-        message: 'A user with this email address already exists.',
-      });
-      return;
+
+    // Detect duplicate key (MongoError code 11000) robustly
+    // Mongoose may wrap errors; check common shapes
+    const anyErr = err as any;
+    const isDuplicateKey =
+      anyErr?.code === 11000 || (anyErr?.name === 'MongoServerError' && anyErr?.code === 11000);
+
+    if (isDuplicateKey) {
+      return reply
+        .code(409)
+        .send(
+          makeErrorResponse(
+            409,
+            'DUPLICATE_RESOURCE',
+            'Conflict',
+            'A user with this email address already exists.',
+          ),
+        );
     }
 
-    reply.status(500).send({
-      statusCode: 500,
-      code: 'INTERNAL_SERVER_ERROR',
-      error: 'Internal Server Error',
-      message: 'An unexpected server error occurred while creating the user.',
-    });
+    return reply
+      .code(500)
+      .send(
+        makeErrorResponse(
+          500,
+          'INTERNAL_SERVER_ERROR',
+          'Internal Server Error',
+          'An unexpected server error occurred while creating the user.',
+        ),
+      );
   }
 }
 
-// --- Controller for update a user ---
-
+/**
+ * PUT /users/:userId
+ */
 export async function updateUserById(
-  request: FastifyRequest<{ Params: IParamUserId; Body: IEditUserBody }>,
+  request: RequestWithModels<{ Params: ParamUserId; Body: EditUserBody }>,
   reply: FastifyReply,
 ) {
+  const { User } = request.server.models;
+  const { userId } = request.params;
+  const update = request.body;
+
   try {
-    const userId = request.params.userId;
-    const body = request.body;
-    const { User } = request.server.models;
-    const user = await User.findByIdAndUpdate(userId, body, { new: true, runValidators: true });
+    const user = await User.findByIdAndUpdate(userId, update, {
+      new: true,
+      runValidators: true,
+      context: 'query',
+    }).exec();
 
     if (!user) {
-      reply.status(404);
-      return {
-        statusCode: 404,
-        code: 'NOT_FOUND',
-        error: 'User Not Found',
-        message: 'The requested user resource could not be found.',
-      };
+      return reply
+        .code(404)
+        .send(
+          makeErrorResponse(
+            404,
+            'NOT_FOUND',
+            'User Not Found',
+            'The requested user resource could not be found.',
+          ),
+        );
     }
 
-    return user;
+    return reply.code(200).send(user);
   } catch (err) {
     request.server.log.error(err);
-    reply.status(500).send({
-      statusCode: 500,
-      code: 'INTERNAL_SERVER_ERROR',
-      error: 'Internal Server Error',
-      message: 'An unexpected server error occurred while fetching users.',
-    });
+    // Validation errors from Mongoose would be handleable here if desired
+    return reply
+      .code(500)
+      .send(
+        makeErrorResponse(
+          500,
+          'INTERNAL_SERVER_ERROR',
+          'Internal Server Error',
+          'An unexpected server error occurred while updating the user.',
+        ),
+      );
   }
 }
 
-// --- Controller for Deleting a user ---
-
+/**
+ * DELETE /users/:userId
+ */
 export async function deleteUserById(
-  request: FastifyRequest<{ Params: IParamUserId }>,
+  request: RequestWithModels<{ Params: ParamUserId }>,
   reply: FastifyReply,
 ) {
+  const { User } = request.server.models;
+  const { userId } = request.params;
+
   try {
-    const userId = request.params.userId;
-    const { User } = request.server.models;
-    const user = await User.findByIdAndDelete<IUserDoc>(userId).lean();
+    const user = await User.findByIdAndDelete(userId).lean().exec();
 
     if (!user) {
-      reply.status(404);
-      return {
-        statusCode: 404,
-        code: 'NOT_FOUND',
-        error: 'User Not Found',
-        message: 'The requested user resource could not be found.',
-      };
+      return reply
+        .code(404)
+        .send(
+          makeErrorResponse(
+            404,
+            'NOT_FOUND',
+            'User Not Found',
+            'The requested user resource could not be found.',
+          ),
+        );
     }
 
-    return user;
+    return reply.code(200).send(user);
   } catch (err) {
     request.server.log.error(err);
-    reply.status(500).send({
-      statusCode: 500,
-      code: 'INTERNAL_SERVER_ERROR',
-      error: 'Internal Server Error',
-      message: 'An unexpected server error occurred while fetching users.',
-    });
+    return reply
+      .code(500)
+      .send(
+        makeErrorResponse(
+          500,
+          'INTERNAL_SERVER_ERROR',
+          'Internal Server Error',
+          'An unexpected server error occurred while deleting the user.',
+        ),
+      );
   }
 }

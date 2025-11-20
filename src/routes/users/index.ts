@@ -1,17 +1,28 @@
 import { FastifyInstance, FastifyPluginCallback } from 'fastify';
-import { QueryLimitSchema, UserListResponseSchema } from './user.schema';
+import {
+  QueryLimitSchema,
+  UserListResponseSchema,
+  UserSchema as UserResponseSchema,
+  UserIdParamSchema,
+  CreateUserBodySchema,
+  UpdateUserBodySchema,
+} from './user.schema';
+import { ErrorSchema } from '../../schemas/error.schema';
 import {
   createUser,
   getUsers,
   getUserById,
   updateUserById,
   deleteUserById,
+  type GetUsersQuery,
+  type ParamUserId,
+  type CreateUserBody,
+  type EditUserBody,
 } from './user.controller';
-import { ErrorSchema } from '../../schemas/error.schema';
-import { UserSchema } from '../../schemas/user.schema';
 
-const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
-  fastify.get(
+const routes: FastifyPluginCallback = (fastify: FastifyInstance, _opts, done) => {
+  // list users
+  fastify.get<{ Querystring: GetUsersQuery }>(
     '/users',
     {
       schema: {
@@ -25,20 +36,14 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
     getUsers,
   );
 
-  fastify.post(
+  // create user
+  fastify.post<{ Body: CreateUserBody }>(
     '/users',
     {
       schema: {
-        body: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            email: { type: 'string', format: 'email' },
-          },
-          required: ['name', 'email'],
-        },
+        body: CreateUserBodySchema,
         response: {
-          201: UserSchema,
+          201: UserResponseSchema,
           400: ErrorSchema,
           409: ErrorSchema,
           500: ErrorSchema,
@@ -48,23 +53,14 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
     createUser,
   );
 
-  fastify.get(
+  // get single user
+  fastify.get<{ Params: ParamUserId }>(
     '/users/:userId',
     {
       schema: {
-        params: {
-          type: 'object',
-          properties: {
-            userId: {
-              type: 'string',
-              minLength: 24,
-              pattern: '^[0-9a-fA-F]{24}$',
-            },
-          },
-          required: ['userId'],
-        },
+        params: UserIdParamSchema,
         response: {
-          200: UserSchema,
+          200: UserResponseSchema,
           404: ErrorSchema,
           500: ErrorSchema,
         },
@@ -73,30 +69,15 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
     getUserById,
   );
 
-  fastify.put(
+  // update user
+  fastify.put<{ Params: ParamUserId; Body: EditUserBody }>(
     '/users/:userId',
     {
       schema: {
-        params: {
-          type: 'object',
-          properties: {
-            userId: {
-              type: 'string',
-              minLength: 24,
-              pattern: '^[0-9a-fA-F]{24}$',
-            },
-          },
-          required: ['userId'],
-        },
-        body: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            email: { type: 'string', format: 'email' },
-          },
-        },
+        params: UserIdParamSchema,
+        body: UpdateUserBodySchema,
         response: {
-          200: UserSchema,
+          200: UserResponseSchema,
           400: ErrorSchema,
           404: ErrorSchema,
           500: ErrorSchema,
@@ -106,23 +87,14 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _, done) => {
     updateUserById,
   );
 
-  fastify.delete(
+  // delete user
+  fastify.delete<{ Params: ParamUserId }>(
     '/users/:userId',
     {
       schema: {
-        params: {
-          type: 'object',
-          properties: {
-            userId: {
-              type: 'string',
-              minLength: 24,
-              pattern: '^[0-9a-fA-F]{24}$',
-            },
-          },
-          required: ['userId'],
-        },
+        params: UserIdParamSchema,
         response: {
-          200: UserSchema,
+          200: UserResponseSchema,
           404: ErrorSchema,
           500: ErrorSchema,
         },

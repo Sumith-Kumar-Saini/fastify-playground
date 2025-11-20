@@ -17,14 +17,16 @@ Content-Type: application/json
     "email": "test@email.com"
 }
 
-### Get all users
-GET http://{{baseUrl}}/users/691ef899d226aeeb9217419a HTTP/1.1
+@userId=691f0a38e903f37c1aada043
+
+### Get Single users
+GET http://{{baseUrl}}/users/{{userId}} HTTP/1.1
 
 ### Delete a exiting User
-DELETE  http://{{baseUrl}}/users/691ef899d226aeeb9217419a HTTP/1.1
+DELETE  http://{{baseUrl}}/users/{{userId}} HTTP/1.1
 
 ### Update a exiting User
-PUT http://{{baseUrl}}/users/691ef899d226aeeb9217419a HTTP/1.1
+PUT http://{{baseUrl}}/users/{{userId}} HTTP/1.1
 Content-Type: application/json
 
 {
