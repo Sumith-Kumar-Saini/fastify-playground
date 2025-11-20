@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { IUser } from '../../models/user';
+import { IUser, IUserDoc } from '../../models/user';
 import { Error as MongooseError } from 'mongoose';
 
 // 1. Define types for clarity
@@ -12,7 +12,7 @@ interface ICreateUserBody {
   email: string;
 }
 
-interface IEditUserParam {
+interface IParamUserId {
   userId: string;
 }
 
@@ -23,7 +23,7 @@ interface IEditUserBody {
 
 // --- Controller for fetching all users ---
 
-export async function getAllUsers(
+export async function getUsers(
   request: FastifyRequest<{ Querystring: IGetAllUsersQuery }>,
   reply: FastifyReply,
 ) {
@@ -35,6 +35,39 @@ export async function getAllUsers(
 
     const users = await User.find({}).limit(limit).lean();
     return users;
+  } catch (err) {
+    request.server.log.error(err);
+    reply.status(500).send({
+      statusCode: 500,
+      code: 'INTERNAL_SERVER_ERROR',
+      error: 'Internal Server Error',
+      message: 'An unexpected server error occurred while fetching users.',
+    });
+  }
+}
+
+// --- Controller for fetching single user ---
+
+export async function getUserById(
+  request: FastifyRequest<{ Params: IParamUserId }>,
+  reply: FastifyReply,
+) {
+  try {
+    const userId = request.params.userId;
+    const { User } = request.server.models;
+    const user = await User.findById<IUserDoc>(userId).lean();
+
+    if (!user) {
+      reply.status(404);
+      return {
+        statusCode: 404,
+        code: 'NOT_FOUND',
+        error: 'User Not Found',
+        message: 'The requested user resource could not be found.',
+      };
+    }
+
+    return user;
   } catch (err) {
     request.server.log.error(err);
     reply.status(500).send({
@@ -81,10 +114,10 @@ export async function createUser(
   }
 }
 
-// --- Controller for editing a user ---
+// --- Controller for update a user ---
 
-export async function editUser(
-  request: FastifyRequest<{ Params: IEditUserParam; Body: IEditUserBody }>,
+export async function updateUserById(
+  request: FastifyRequest<{ Params: IParamUserId; Body: IEditUserBody }>,
   reply: FastifyReply,
 ) {
   try {
@@ -92,6 +125,39 @@ export async function editUser(
     const body = request.body;
     const { User } = request.server.models;
     const user = await User.findByIdAndUpdate(userId, body, { new: true, runValidators: true });
+
+    if (!user) {
+      reply.status(404);
+      return {
+        statusCode: 404,
+        code: 'NOT_FOUND',
+        error: 'User Not Found',
+        message: 'The requested user resource could not be found.',
+      };
+    }
+
+    return user;
+  } catch (err) {
+    request.server.log.error(err);
+    reply.status(500).send({
+      statusCode: 500,
+      code: 'INTERNAL_SERVER_ERROR',
+      error: 'Internal Server Error',
+      message: 'An unexpected server error occurred while fetching users.',
+    });
+  }
+}
+
+// --- Controller for Deleting a user ---
+
+export async function deleteUserById(
+  request: FastifyRequest<{ Params: IParamUserId }>,
+  reply: FastifyReply,
+) {
+  try {
+    const userId = request.params.userId;
+    const { User } = request.server.models;
+    const user = await User.findByIdAndDelete<IUserDoc>(userId).lean();
 
     if (!user) {
       reply.status(404);
