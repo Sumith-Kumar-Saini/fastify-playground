@@ -12,6 +12,7 @@
     "lint:fix": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "test:performance": "ts-node src/performance/index.ts",
+    "test": "jest",
     "prepare": "husky"
   },
   "lint-staged": {
