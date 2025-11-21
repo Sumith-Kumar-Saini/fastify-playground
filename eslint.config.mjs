@@ -17,7 +17,7 @@ export default tseslint.config(
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        projectService: true, // auto-detect tsconfig.json
+        project: ['./tsconfig.eslint.json'],
       },
       globals: {
         ...globals.browser,
