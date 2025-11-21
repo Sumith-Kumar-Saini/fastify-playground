@@ -1,6 +1,6 @@
 {
   "name": "fastify-playground",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A learning and exploration project transitioning from Express to Fastify — experimenting with modern API design, performance, and development patterns.",
   "scripts": {
     "dev": "nodemon",
