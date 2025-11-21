@@ -23,14 +23,14 @@ This document explains **every major phase and hook** of a Fastify application �
 When you call `fastify()`, a new Fastify instance is created.
 
 ```js
-const fastify = require('fastify')()
+const fastify = require('fastify')();
 ```
 
 **What happens internally:**
 
-* A new encapsulation context is created.
-* Default decorators, serializers, and content parsers are initialized.
-* No routes or plugins are loaded yet.
+- A new encapsulation context is created.
+- Default decorators, serializers, and content parsers are initialized.
+- No routes or plugins are loaded yet.
 
 There are **no hooks** executed at this point.
 
@@ -43,35 +43,35 @@ This is where plugin-level hooks and decorators live.
 
 ### 🔹 onRegister
 
-* **Phase:** Plugin Registration
-* **Runs:** Once per plugin registration
-* **Async:** ✅
-* **Purpose:** Modify or inspect the context *before* the plugin function runs.
-* **Example:**
+- **Phase:** Plugin Registration
+- **Runs:** Once per plugin registration
+- **Async:** ✅
+- **Purpose:** Modify or inspect the context _before_ the plugin function runs.
+- **Example:**
 
   ```js
   fastify.addHook('onRegister', (instance, opts) => {
-    console.log('Plugin registered:', instance.prefix)
-  })
+    console.log('Plugin registered:', instance.prefix);
+  });
   ```
 
 ### 🔹 Plugin Execution
 
-* The plugin function runs.
-* Inside, you can add decorators, hooks, and routes.
+- The plugin function runs.
+- Inside, you can add decorators, hooks, and routes.
 
 ### 🔹 onRoute
 
-* **Phase:** Route Definition
-* **Runs:** Once per route registration
-* **Async:** ❌ (synchronous)
-* **Purpose:** Observe or modify route configurations.
-* **Example:**
+- **Phase:** Route Definition
+- **Runs:** Once per route registration
+- **Async:** ❌ (synchronous)
+- **Purpose:** Observe or modify route configurations.
+- **Example:**
 
   ```js
   fastify.addHook('onRoute', (route) => {
-    console.log('New route added:', route.url)
-  })
+    console.log('New route added:', route.url);
+  });
   ```
 
 ---
@@ -82,23 +82,23 @@ After all plugins and routes are registered, the app enters the ready phase.
 
 ### 🔹 onReady
 
-* **Phase:** Server Ready
-* **Runs:** Once, after all plugins loaded
-* **Async:** ✅
-* **Purpose:** Execute logic before server starts listening (e.g., DB warm-up).
-* **Triggered by:** `await fastify.ready()`
+- **Phase:** Server Ready
+- **Runs:** Once, after all plugins loaded
+- **Async:** ✅
+- **Purpose:** Execute logic before server starts listening (e.g., DB warm-up).
+- **Triggered by:** `await fastify.ready()`
 
 ### 🔹 onListen
 
-* **Phase:** Server Startup
-* **Runs:** Once per `fastify.listen()` call
-* **Async:** ✅
-* **Purpose:** Perform tasks after the server has successfully started (e.g., log binding info).
+- **Phase:** Server Startup
+- **Runs:** Once per `fastify.listen()` call
+- **Async:** ✅
+- **Purpose:** Perform tasks after the server has successfully started (e.g., log binding info).
 
 ```js
 fastify.addHook('onListen', async (server) => {
-  console.log('Server listening on', server.address())
-})
+  console.log('Server listening on', server.address());
+});
 ```
 
 ---
@@ -131,74 +131,74 @@ Let’s look at each step.
 
 ### 🔹 onRequest
 
-* **Phase:** Start of request
-* **Runs:** Per request
-* **Async:** ✅
-* **Purpose:** Access raw `req`/`res`, log or modify headers, perform early auth checks.
-* **Note:** Runs before body parsing.
+- **Phase:** Start of request
+- **Runs:** Per request
+- **Async:** ✅
+- **Purpose:** Access raw `req`/`res`, log or modify headers, perform early auth checks.
+- **Note:** Runs before body parsing.
 
 ---
 
 ### 🔹 preParsing
 
-* **Phase:** Before body parsing
-* **Runs:** Per request
-* **Async:** ✅
-* **Purpose:** Modify the raw request stream before parsing (e.g., decompressing).
+- **Phase:** Before body parsing
+- **Runs:** Per request
+- **Async:** ✅
+- **Purpose:** Modify the raw request stream before parsing (e.g., decompressing).
 
 ---
 
 ### 🔹 preValidation
 
-* **Phase:** Before schema validation
-* **Runs:** Per request
-* **Async:** ✅
-* **Purpose:** Manipulate or add data before Fastify validates the request payload or params.
+- **Phase:** Before schema validation
+- **Runs:** Per request
+- **Async:** ✅
+- **Purpose:** Manipulate or add data before Fastify validates the request payload or params.
 
 ---
 
 ### 🔹 preHandler
 
-* **Phase:** Before route handler execution
-* **Runs:** Per request
-* **Async:** ✅
-* **Purpose:** Commonly used for authentication, authorization, or pre-fetching data.
+- **Phase:** Before route handler execution
+- **Runs:** Per request
+- **Async:** ✅
+- **Purpose:** Commonly used for authentication, authorization, or pre-fetching data.
 
 ---
 
 ### 🔹 Route Handler
 
-* **Phase:** Business logic execution
-* **Runs:** Per request
-* **Async:** ✅
-* **Purpose:** The user-defined handler produces the response payload.
+- **Phase:** Business logic execution
+- **Runs:** Per request
+- **Async:** ✅
+- **Purpose:** The user-defined handler produces the response payload.
 
 ---
 
 ### 🔹 preSerialization
 
-* **Phase:** Before response serialization
-* **Runs:** Per request
-* **Async:** ✅
-* **Purpose:** Modify or transform response payload before it’s serialized (e.g., mask data).
+- **Phase:** Before response serialization
+- **Runs:** Per request
+- **Async:** ✅
+- **Purpose:** Modify or transform response payload before it’s serialized (e.g., mask data).
 
 ---
 
 ### 🔹 onSend
 
-* **Phase:** Before sending response to client
-* **Runs:** Per request
-* **Async:** ✅
-* **Purpose:** Alter response body or headers, add metadata, compress, etc.
+- **Phase:** Before sending response to client
+- **Runs:** Per request
+- **Async:** ✅
+- **Purpose:** Alter response body or headers, add metadata, compress, etc.
 
 ---
 
 ### 🔹 onResponse
 
-* **Phase:** After response is sent
-* **Runs:** Per request
-* **Async:** ✅
-* **Purpose:** Final logging, analytics, resource cleanup.
+- **Phase:** After response is sent
+- **Runs:** Per request
+- **Async:** ✅
+- **Purpose:** Final logging, analytics, resource cleanup.
 
 ---
 
@@ -208,21 +208,21 @@ Certain hooks run only during exceptional conditions.
 
 ### 🔹 onError
 
-* **Runs:** When a hook, validation, or handler throws or rejects.
-* **Async:** ✅
-* **Purpose:** Customize error responses, logging, or telemetry.
+- **Runs:** When a hook, validation, or handler throws or rejects.
+- **Async:** ✅
+- **Purpose:** Customize error responses, logging, or telemetry.
 
 ### 🔹 onTimeout
 
-* **Runs:** When a request exceeds timeout.
-* **Async:** ✅
-* **Purpose:** Handle timeout errors gracefully.
+- **Runs:** When a request exceeds timeout.
+- **Async:** ✅
+- **Purpose:** Handle timeout errors gracefully.
 
 ### 🔹 onRequestAbort
 
-* **Runs:** When a client aborts the request.
-* **Async:** ✅
-* **Purpose:** Clean up streams or cancel database operations.
+- **Runs:** When a client aborts the request.
+- **Async:** ✅
+- **Purpose:** Clean up streams or cancel database operations.
 
 ---
 
@@ -232,16 +232,16 @@ When `fastify.close()` is called, Fastify gracefully tears down all resources.
 
 ### 🔹 onClose
 
-* **Phase:** Teardown
-* **Runs:** Once per plugin (in reverse registration order)
-* **Async:** ✅
-* **Purpose:** Release resources, close DB connections, stop timers, etc.
-* **Example:**
+- **Phase:** Teardown
+- **Runs:** Once per plugin (in reverse registration order)
+- **Async:** ✅
+- **Purpose:** Release resources, close DB connections, stop timers, etc.
+- **Example:**
 
   ```js
   fastify.addHook('onClose', async (instance) => {
-    await instance.db.close()
-  })
+    await instance.db.close();
+  });
   ```
 
 ---
@@ -281,27 +281,27 @@ Server Shutdown
 
 | Hook               | Phase               | Runs            | Async | Purpose                     |
 | ------------------ | ------------------- | --------------- | ----- | --------------------------- |
-| `onRegister`       | Plugin Registration | Once per plugin | ✅     | Modify encapsulated scope   |
-| `onRoute`          | Route Definition    | Once per route  | ❌     | Inspect route config        |
-| `onReady`          | Ready               | Once            | ✅     | Startup tasks               |
-| `onListen`         | Startup             | Once per listen | ✅     | Post-bind logic             |
-| `onRequest`        | Request Lifecycle   | Per request     | ✅     | Early request logic         |
-| `preParsing`       | Request Lifecycle   | Per request     | ✅     | Modify raw body             |
-| `preValidation`    | Request Lifecycle   | Per request     | ✅     | Before validation           |
-| `preHandler`       | Request Lifecycle   | Per request     | ✅     | Before handler              |
-| `preSerialization` | Request Lifecycle   | Per request     | ✅     | Modify response payload     |
-| `onSend`           | Request Lifecycle   | Per request     | ✅     | Modify response before send |
-| `onResponse`       | Request Lifecycle   | Per request     | ✅     | After response cleanup      |
-| `onError`          | Error Lifecycle     | On error only   | ✅     | Custom error handling       |
-| `onTimeout`        | Error Lifecycle     | On timeout      | ✅     | Handle timeouts             |
-| `onRequestAbort`   | Error Lifecycle     | On abort        | ✅     | Cleanup on abort            |
-| `onClose`          | Teardown            | Once per plugin | ✅     | Release resources           |
+| `onRegister`       | Plugin Registration | Once per plugin | ✅    | Modify encapsulated scope   |
+| `onRoute`          | Route Definition    | Once per route  | ❌    | Inspect route config        |
+| `onReady`          | Ready               | Once            | ✅    | Startup tasks               |
+| `onListen`         | Startup             | Once per listen | ✅    | Post-bind logic             |
+| `onRequest`        | Request Lifecycle   | Per request     | ✅    | Early request logic         |
+| `preParsing`       | Request Lifecycle   | Per request     | ✅    | Modify raw body             |
+| `preValidation`    | Request Lifecycle   | Per request     | ✅    | Before validation           |
+| `preHandler`       | Request Lifecycle   | Per request     | ✅    | Before handler              |
+| `preSerialization` | Request Lifecycle   | Per request     | ✅    | Modify response payload     |
+| `onSend`           | Request Lifecycle   | Per request     | ✅    | Modify response before send |
+| `onResponse`       | Request Lifecycle   | Per request     | ✅    | After response cleanup      |
+| `onError`          | Error Lifecycle     | On error only   | ✅    | Custom error handling       |
+| `onTimeout`        | Error Lifecycle     | On timeout      | ✅    | Handle timeouts             |
+| `onRequestAbort`   | Error Lifecycle     | On abort        | ✅    | Cleanup on abort            |
+| `onClose`          | Teardown            | Once per plugin | ✅    | Release resources           |
 
 ---
 
 ### 🧩 Notes
 
-* All hooks can be **encapsulated**: they only apply to the scope (plugin or route) where they were defined.
-* Hooks are executed in **registration order**, within the encapsulation hierarchy.
-* Global hooks apply across all routes unless defined inside a plugin scope.
-* All async hooks can return a Promise or use a `done()` callback.
+- All hooks can be **encapsulated**: they only apply to the scope (plugin or route) where they were defined.
+- Hooks are executed in **registration order**, within the encapsulation hierarchy.
+- Global hooks apply across all routes unless defined inside a plugin scope.
+- All async hooks can return a Promise or use a `done()` callback.
