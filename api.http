@@ -17,7 +17,9 @@ Content-Type: application/json
     "email": "test@email.com"
 }
 
-@userId=691f0a38e903f37c1aada043
+
+### UserID
+@userId=69208df125a0a6a6eeabeb1b
 
 ### Get Single users
 GET http://{{baseUrl}}/users/{{userId}} HTTP/1.1

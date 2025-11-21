@@ -6,7 +6,6 @@ const fastify = buildApp();
 async function startServer() {
   try {
     await fastify.listen({ port: ENV.PORT, host: ENV.HOST });
-    fastify.log.info(`Server running on http://${ENV.HOST}:${ENV.PORT}`);
   } catch (err) {
     fastify.log.error({ err }, 'Failed to start server');
     process.exit(1);

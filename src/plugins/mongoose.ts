@@ -1,28 +1,30 @@
+import { FastifyPluginAsync } from 'fastify';
 import * as mongoose from 'mongoose';
 import fp from 'fastify-plugin';
-import { FastifyInstance } from 'fastify';
 
 export interface MongooseOptions {
   uri: string;
   mongooseOptions?: mongoose.ConnectOptions;
 }
 
-async function connectDB(fastify: FastifyInstance, options: MongooseOptions) {
+const connectDB: FastifyPluginAsync<MongooseOptions> = async (fastify, options) => {
   const { uri, mongooseOptions } = options;
   try {
-    const { connection } = await mongoose.connect(uri, mongooseOptions);
-    const conn = connection;
+    const mongooseInstance = await mongoose.connect(uri, mongooseOptions);
+    const conn = mongooseInstance.connection;
     fastify.log.info('MongoDB connected successfully!');
     fastify.decorate('mongo', conn);
     fastify.addHook('onClose', async () => {
-      await conn.close().catch((err) => {
+      try {
+        await conn.close();
+      } catch (err: unknown) {
         fastify.log.error({ err }, 'Error closing MongoDB connection');
-      });
+      }
     });
-  } catch (err) {
-    fastify.log.error(err);
+  } catch (err: unknown) {
+    fastify.log.error({ err }, 'Error connecting to MongoDB');
     process.exit(1);
   }
-}
+};
 
 export default fp(connectDB, { name: 'fastify-mongoose-plugin' });
