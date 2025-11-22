@@ -1,189 +1,213 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
-import { buildApp } from '../src/app';
+import { setupTestApp, teardownTestApp } from './setup';
 import { FastifyInstance } from 'fastify';
+import { createTestUser } from './factories/userFactory';
 
 describe('Users routes', () => {
-  let mongod: MongoMemoryServer;
   let app: FastifyInstance;
 
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
-
-    app = buildApp({
-      mongoUri: mongod.getUri(),
-      logger: false,
-    });
-
-    await app.ready();
-  });
-
-  afterEach(async () => {
-    const collections = mongoose.connection.collections;
-    for (const key in collections) {
-      await collections[key].deleteMany({});
-    }
+    app = await setupTestApp();
   });
 
   afterAll(async () => {
-    await app.close();
-    await mongoose.connection.close();
-    await mongod.stop();
+    await teardownTestApp();
   });
 
   //
-  // POST /users
+  // CREATE USER
   //
-  it('should create a user', async () => {
-    const res = await app.inject({
-      method: 'POST',
-      url: '/users',
-      payload: {
-        name: 'John Doe',
-        email: 'john@example.com',
-      },
+  describe('POST /users', () => {
+    it('should create a user', async () => {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          name: 'John Doe',
+          email: 'john@example.com',
+        },
+      });
+
+      expect(res.statusCode).toBe(201);
+      const body = JSON.parse(res.body);
+      expect(body.email).toBe('john@example.com');
     });
 
-    expect(res.statusCode).toBe(201);
-    const body = JSON.parse(res.body);
+    it('should return 409 on duplicate email', async () => {
+      const email = 'dup@example.com';
+      await createTestUser(app, { email });
 
-    expect(body.name).toBe('John Doe');
-    expect(body.email).toBe('john@example.com');
-    expect(body._id).toBeDefined();
+      const res = await app.inject({
+        method: 'POST',
+        url: '/users',
+        payload: { name: 'Someone Else', email },
+      });
+
+      expect(res.statusCode).toBe(409);
+    });
+
+    it('should return 400 for invalid email', async () => {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          name: 'Bad Email',
+          email: 'not-an-email',
+        },
+      });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it('should return 400 when name is missing', async () => {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          email: 'no-name@example.com',
+        },
+      });
+
+      expect(res.statusCode).toBe(400);
+    });
   });
 
   //
-  // GET /users
+  // GET LIST
   //
-  it('should list users (limit default=10)', async () => {
-    await app.inject({
-      method: 'POST',
-      url: '/users',
-      payload: {
-        name: 'John Doe',
-        email: 'john@example.com',
-      },
+  describe('GET /users', () => {
+    it('should list users', async () => {
+      await createTestUser(app);
+
+      const res = await app.inject({
+        method: 'GET',
+        url: '/users',
+      });
+
+      expect(res.statusCode).toBe(200);
+      const list = JSON.parse(res.body);
+      expect(Array.isArray(list)).toBe(true);
+      expect(list.length).toBeGreaterThan(0);
     });
 
-    const res = await app.inject({
-      method: 'GET',
-      url: '/users',
-    });
+    it('should validate limit query (400)', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/users?limit=abc',
+      });
 
-    expect(res.statusCode).toBe(200);
-    const users = JSON.parse(res.body);
-    expect(Array.isArray(users)).toBe(true);
-    expect(users.length).toBeGreaterThan(0);
+      // Query schema pattern /^[0-9]+$/ so invalid → 400
+      expect(res.statusCode).toBe(400);
+    });
   });
 
   //
-  // GET /users/:userId
+  // GET BY ID
   //
-  it('should return user by id', async () => {
-    // First create a user
-    const created = await app.inject({
-      method: 'POST',
-      url: '/users',
-      payload: {
-        name: 'Jane',
-        email: 'jane@example.com',
-      },
+  describe('GET /users/:id', () => {
+    it('should return a user', async () => {
+      const user = await createTestUser(app);
+
+      const res = await app.inject({
+        method: 'GET',
+        url: `/users/${user._id}`,
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.body);
+      expect(body._id).toBe(user._id);
     });
 
-    const user = JSON.parse(created.body);
+    it('should return 400 for invalid ObjectId', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/users/not-a-valid-id',
+      });
 
-    const res = await app.inject({
-      method: 'GET',
-      url: `/users/${user._id}`,
+      expect(res.statusCode).toBe(400);
     });
 
-    expect(res.statusCode).toBe(200);
-    const body = JSON.parse(res.body);
-    expect(body._id).toBe(user._id);
-    expect(body.name).toBe('Jane');
-  });
+    it('should return 404 for non-existing user', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/users/aaaaaaaaaaaaaaaaaaaaaaaa',
+      });
 
-  it('should return 404 when user not found', async () => {
-    const fakeId = 'aaaaaaaaaaaaaaaaaaaaaaaa';
-    const res = await app.inject({
-      method: 'GET',
-      url: `/users/${fakeId}`,
+      expect(res.statusCode).toBe(404);
     });
-
-    expect(res.statusCode).toBe(404);
-  });
-
-  //
-  // PUT /users/:userId
-  //
-  it('should update a user', async () => {
-    const created = await app.inject({
-      method: 'POST',
-      url: '/users',
-      payload: {
-        name: 'Bob',
-        email: 'bob@example.com',
-      },
-    });
-
-    const user = JSON.parse(created.body);
-
-    const res = await app.inject({
-      method: 'PUT',
-      url: `/users/${user._id}`,
-      payload: {
-        name: 'Bob Updated',
-      },
-    });
-
-    expect(res.statusCode).toBe(200);
-
-    const body = JSON.parse(res.body);
-    expect(body.name).toBe('Bob Updated');
-  });
-
-  it('should return 404 when updating non-existing user', async () => {
-    const fakeId = 'bbbbbbbbbbbbbbbbbbbbbbbb';
-    const res = await app.inject({
-      method: 'PUT',
-      url: `/users/${fakeId}`,
-      payload: { name: 'Nobody' },
-    });
-
-    expect(res.statusCode).toBe(404);
   });
 
   //
-  // DELETE /users/:userId
+  // UPDATE
   //
-  it('should delete a user', async () => {
-    const created = await app.inject({
-      method: 'POST',
-      url: '/users',
-      payload: {
-        name: 'Delete Me',
-        email: 'deleteme@example.com',
-      },
+  describe('PUT /users/:id', () => {
+    it('should update a user', async () => {
+      const user = await createTestUser(app);
+
+      const res = await app.inject({
+        method: 'PUT',
+        url: `/users/${user._id}`,
+        payload: { name: 'Updated Name' },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.body);
+      expect(body.name).toBe('Updated Name');
     });
 
-    const user = JSON.parse(created.body);
+    it('should return 400 for invalid email on update', async () => {
+      const user = await createTestUser(app);
 
-    const res = await app.inject({
-      method: 'DELETE',
-      url: `/users/${user._id}`,
+      const res = await app.inject({
+        method: 'PUT',
+        url: `/users/${user._id}`,
+        payload: { email: 'bad-email' },
+      });
+
+      expect(res.statusCode).toBe(400);
     });
 
-    expect(res.statusCode).toBe(200);
+    it('should return 404 when updating non-existing user', async () => {
+      const res = await app.inject({
+        method: 'PUT',
+        url: `/users/bbbbbbbbbbbbbbbbbbbbbbbb`,
+        payload: { name: 'None' },
+      });
+
+      expect(res.statusCode).toBe(404);
+    });
   });
 
-  it('should return 404 when deleting non-existing user', async () => {
-    const fakeId = 'cccccccccccccccccccccccc';
+  //
+  // DELETE
+  //
+  describe('DELETE /users/:id', () => {
+    it('should delete a user', async () => {
+      const user = await createTestUser(app);
 
-    const res = await app.inject({
-      method: 'DELETE',
-      url: `/users/${fakeId}`,
+      const res = await app.inject({
+        method: 'DELETE',
+        url: `/users/${user._id}`,
+      });
+
+      expect(res.statusCode).toBe(200);
     });
 
-    expect(res.statusCode).toBe(404);
+    it('should return 404 when deleting a non-existing user', async () => {
+      const res = await app.inject({
+        method: 'DELETE',
+        url: '/users/cccccccccccccccccccccccc',
+      });
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it('should return 400 for invalid ObjectId', async () => {
+      const res = await app.inject({
+        method: 'DELETE',
+        url: '/users/invalid-id',
+      });
+
+      expect(res.statusCode).toBe(400);
+    });
   });
 });
