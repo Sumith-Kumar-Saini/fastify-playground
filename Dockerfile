@@ -10,6 +10,7 @@ RUN npm ci
 
 # ---- Build ----
 FROM base AS build
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
@@ -22,7 +23,7 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY package*.json ./
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 
 ENV NODE_ENV=production
