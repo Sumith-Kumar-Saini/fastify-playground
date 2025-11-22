@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon",
     "clean": "rm -rf dist",
-    "typecheck": "tsc --noEmit",
+    "type-check": "tsc --noEmit",
     "start": "node dist/server.js",
     "build": "node ./esbuild.config.mjs",
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
