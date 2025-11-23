@@ -5,7 +5,7 @@ import modelsPlugin from './plugins/models';
 import mongoPlugin from './plugins/mongoose';
 import ENV from './configs/env';
 
-export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { logger: true }) {
+export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = {}) {
   const fastify = Fastify({
     logger: overrides?.logger ?? logger,
     ajv: {

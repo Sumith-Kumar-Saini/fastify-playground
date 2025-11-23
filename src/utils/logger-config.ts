@@ -1,7 +1,8 @@
-const isDev = process.env.NODE_ENV !== 'production';
+import ENV from '../configs/env';
 
+const isDev = ENV.NODE_ENV !== 'production';
 const logger = {
-  level: process.env.LOG_LEVEL || 'info',
+  level: ENV.LOG_LEVEL,
   transport: isDev
     ? {
         target: 'pino-pretty',
