@@ -1,13 +1,16 @@
 import Fastify from 'fastify';
-import logger from './utils/logger-config';
+import { getLoggerConfig } from './utils/logger-config';
 import routes from './routes/users';
 import modelsPlugin from './plugins/models';
 import mongoPlugin from './plugins/mongoose';
 import ENV from './configs/env';
 
-export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = {}) {
+export function buildApp(
+  overrides: { mongoUri?: string; logger?: boolean | object } = { logger: true },
+) {
+  const loggerConfig = getLoggerConfig(overrides);
   const fastify = Fastify({
-    logger: overrides?.logger ?? logger,
+    logger: loggerConfig,
     ajv: {
       customOptions: {
         removeAdditional: 'all',
