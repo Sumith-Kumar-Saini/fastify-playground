@@ -1,28 +1,19 @@
 import Fastify from 'fastify';
-import { getLoggerConfig } from './utils/logger-config';
+import logger from './utils/logger-config';
 import routes from './routes/users';
 import modelsPlugin from './plugins/models';
 import mongoPlugin from './plugins/mongoose';
 import ENV from './configs/env';
 
-export function buildApp(
-  overrides: { mongoUri?: string; logger?: boolean | object } = { logger: true },
-) {
-  const loggerConfig = getLoggerConfig(overrides);
+export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { logger: true }) {
   const fastify = Fastify({
-    logger: loggerConfig,
+    logger: overrides?.logger ?? logger,
     ajv: {
       customOptions: {
         removeAdditional: 'all',
       },
     },
   });
-
-  // Welcome route
-  fastify.get(
-    '/',
-    () => 'Welcome to the Fastify Playground! Explore, experiment, and learn the power of Fastify.',
-  );
 
   // Ping route
   fastify.get('/ping', () => 'pong\n');
