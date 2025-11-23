@@ -1,0 +1,34 @@
+name: Docker Publish
+
+on:
+  workflow_run:
+    workflows: [ "CI" ]  # Trigger when CI workflow is completed
+    types: [ completed ]  # Only trigger on successful CI
+
+jobs:
+  build:
+    # Run only if CI was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}  
+    runs-on: ubuntu-latest  # Use Ubuntu runner
+
+    steps:
+      - uses: actions/checkout@v4  # Checkout code from the CI commit
+
+      - uses: docker/login-action@v3  # Docker login
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Image
+        run: |
+          docker build --pull -t ${{ secrets.DOCKERHUB_USERNAME }}/fastify-playground:${{ github.event.workflow_run.head_sha }} .
+
+      - name: Push Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastify-playground:${{ github.event.workflow_run.head_sha }}
+
+      - name: Trigger Render Deployment
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -d "{\"imageUrl\":\"docker.io/${{ secrets.DOCKERHUB_USERNAME }}/fastify-playground:${{ github.event.workflow_run.head_sha }}\"}" \
+            https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys

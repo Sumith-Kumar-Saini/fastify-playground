@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]  # Trigger CI on push to main branch
+  pull_request:
+    branches: ["main"]  # Trigger on PR targeting the main branch
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest  # Use Ubuntu runner
+
+    steps:
+      - uses: actions/checkout@v4  # Checkout the code
+
+      - uses: actions/setup-node@v4  # Setup Node.js
+        with:
+          node-version: 20
+
+      - run: npm ci  # Install dependencies
+
+      - name: Lint
+        run: npm run lint  # Run linting
+
+      - name: Type Check
+        run: npm run type-check  # Run type checking
+
+      - name: Tests
+        run: npm run test  # Run tests
