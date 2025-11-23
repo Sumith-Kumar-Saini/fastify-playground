@@ -18,6 +18,9 @@ export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { 
   // Ping route
   fastify.get('/ping', () => 'pong\n');
 
+  // ENV Check
+  fastify.log.info({ env: ENV }, 'ENV Check');
+
   // Register plugins
   fastify.register(mongoPlugin, { uri: overrides?.mongoUri ?? ENV.MONGO_URI });
   fastify.register(modelsPlugin);
