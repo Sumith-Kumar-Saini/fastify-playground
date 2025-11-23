@@ -41,7 +41,11 @@ const connectDB: FastifyPluginAsync<MongooseOptions> = async (fastify, options) 
       // Retry logic if connection fails
       if (attempt < retryAttempts) {
         fastify.log.info(`Retrying MongoDB connection...`);
-        setTimeout(() => void connect(), 5000); // Retry after 5 seconds
+        setTimeout(() => {
+          connect().catch((err: unknown) => {
+            fastify.log.error({ err }, 'Error reconnecting to MongoDB');
+          });
+        }, 5000); // Retry after 5 seconds
       } else {
         fastify.log.error('Max retry attempts reached. Shutting down.');
         process.exit(1); // Exit the process after max retries
