@@ -15,6 +15,12 @@ export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { 
     },
   });
 
+  // Welcome route
+  fastify.get(
+    '/',
+    () => 'Welcome to the Fastify Playground! Explore, experiment, and learn the power of Fastify.',
+  );
+
   // Ping route
   fastify.get('/ping', () => 'pong\n');
 
