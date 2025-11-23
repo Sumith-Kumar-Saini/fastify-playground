@@ -17,5 +17,4 @@ const modelsPlugin: FastifyPluginCallback = (fastify) => {
 
 export default fp(modelsPlugin, {
   name: 'models-plugin',
-  dependencies: ['fastify-mongoose-plugin'],
 });
