@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 const _config = {
   MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/fastify',
   PORT: parseInt(process.env.PORT || '3000', 10),
