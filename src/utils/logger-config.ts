@@ -13,7 +13,9 @@ interface LoggerOptions {
   };
 }
 
-export function getLoggerConfig(overrides?: { logger?: boolean | object }): false | LoggerOptions {
+export function getLoggerConfig(overrides?: {
+  logger?: boolean | object;
+}): boolean | LoggerOptions {
   const loggerOptions: LoggerOptions = {
     level: ENV.LOG_LEVEL || 'info',
     timestamp: true,
@@ -30,9 +32,8 @@ export function getLoggerConfig(overrides?: { logger?: boolean | object }): fals
           },
   };
 
-  if (overrides?.logger === false) {
-    return false;
-  }
+  if (overrides?.logger === false) return false;
+  if (overrides?.logger === true && ENV.NODE_ENV === 'production') return true;
 
   return { ...loggerOptions, ...(typeof overrides?.logger === 'object' ? overrides.logger : {}) };
 }
