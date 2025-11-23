@@ -15,6 +15,9 @@ export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { 
     },
   });
 
+  // temporary Line to check failure
+  fastify.log.info({ env: process.env }, "Env variables");
+
   // Ping route
   fastify.get('/ping', () => 'pong\n');
 
