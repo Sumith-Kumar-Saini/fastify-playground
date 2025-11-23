@@ -18,8 +18,13 @@ export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { 
   // Ping route
   fastify.get('/ping', () => 'pong\n');
 
-  // Register plugins
-  fastify.register(mongoPlugin, { uri: overrides?.mongoUri ?? ENV.MONGO_URI });
+  // Register plugins with fallback for mongoUri
+  const mongoUri = overrides?.mongoUri ?? ENV.MONGO_URI;
+  if (!mongoUri) {
+    fastify.log.error('Mongo URI is not defined!');
+    process.exit(1);
+  }
+  fastify.register(mongoPlugin, { uri: mongoUri });
   fastify.register(modelsPlugin);
 
   // Register routes
