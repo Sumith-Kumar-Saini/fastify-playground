@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import logger from './utils/logger-config';
-import routes from './routes/users';
+import UserRoutes from './routes/users';
+import HealthRoutes from './routes/health';
 import modelsPlugin from './plugins/models';
 import mongoPlugin from './plugins/mongoose';
 import ENV from './configs/env';
@@ -29,7 +30,8 @@ export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { 
   fastify.register(modelsPlugin);
 
   // Register routes
-  fastify.register(routes);
+  fastify.register(UserRoutes);
+  fastify.register(HealthRoutes);
 
   return fastify;
 }
