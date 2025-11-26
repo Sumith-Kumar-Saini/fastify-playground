@@ -5,6 +5,7 @@ import HealthRoutes from './routes/health';
 import modelsPlugin from './plugins/models';
 import mongoPlugin from './plugins/mongoose';
 import ENV from './configs/env';
+import { customErrorHandler } from './utils/error-hander';
 
 export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { logger: true }) {
   const fastify = Fastify({
@@ -32,6 +33,8 @@ export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { 
   // Register routes
   fastify.register(UserRoutes);
   fastify.register(HealthRoutes);
+
+  fastify.setErrorHandler(customErrorHandler);
 
   return fastify;
 }
