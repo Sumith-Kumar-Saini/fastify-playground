@@ -14,6 +14,7 @@ type RequestWithModels<T extends RouteGenericInterface> = FastifyRequest<T> & {
 
 export interface GetUsersQuery {
   limit?: string;
+  page?: string;
 }
 
 export interface CreateUserBody {
