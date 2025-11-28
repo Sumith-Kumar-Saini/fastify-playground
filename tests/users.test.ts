@@ -1,16 +1,35 @@
-import { setupTestApp, teardownTestApp } from './setup';
 import { FastifyInstance } from 'fastify';
-import { createTestUser } from './factories/userFactory';
+import { createTestUser, createTestUsers } from './factories/userFactory';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { buildApp } from '../src/app';
 
 describe('Users routes', () => {
+  let mongod: MongoMemoryServer;
   let app: FastifyInstance;
 
   beforeAll(async () => {
-    app = await setupTestApp();
+    mongod = await MongoMemoryServer.create();
+
+    app = buildApp({
+      mongoUri: mongod.getUri(),
+      logger: false,
+    });
+
+    await app.ready();
+  });
+
+  beforeEach(async () => {
+    const collections = mongoose.connection.collections;
+    for (const key in collections) {
+      await collections[key].deleteMany({});
+    }
   });
 
   afterAll(async () => {
-    await teardownTestApp();
+    await app.close();
+    await mongoose.connection.close();
+    await mongod.stop();
   });
 
   //
@@ -34,6 +53,7 @@ describe('Users routes', () => {
 
     it('should return 409 on duplicate email', async () => {
       const email = 'dup@example.com';
+
       await createTestUser(app, { email });
 
       const res = await app.inject({
@@ -72,30 +92,75 @@ describe('Users routes', () => {
   });
 
   //
-  // GET LIST
+  // GET LIST WITH PAGINATION
   //
   describe('GET /users', () => {
-    it('should list users', async () => {
-      await createTestUser(app);
+    it('should list users with pagination', async () => {
+      await createTestUsers(app, 20);
 
       const res = await app.inject({
         method: 'GET',
-        url: '/users',
+        url: '/users?page=1&limit=10',
       });
 
       expect(res.statusCode).toBe(200);
-      const list = JSON.parse(res.body);
-      expect(Array.isArray(list)).toBe(true);
-      expect(list.length).toBeGreaterThan(0);
+      const body = JSON.parse(res.body);
+      expect(Array.isArray(body.data)).toBe(true);
+      expect(body.data.length).toBe(10);
+      expect(body.meta.page).toBe(1);
+      expect(body.meta.limit).toBe(10);
+      expect(body.meta.totalUsers).toBe(20);
+      expect(body.meta.totalPages).toBe(2);
     });
 
-    it('should validate limit query (400)', async () => {
+    it('should return 400 for invalid limit query', async () => {
       const res = await app.inject({
         method: 'GET',
         url: '/users?limit=abc',
       });
 
-      // Query schema pattern /^[0-9]+$/ so invalid → 400
+      expect(res.statusCode).toBe(400);
+    });
+
+    it('should return the correct number of users for page 2', async () => {
+      await createTestUsers(app, 20);
+
+      const res = await app.inject({
+        method: 'GET',
+        url: '/users?page=2&limit=10',
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.body);
+      expect(body.data.length).toBe(10);
+      expect(body.meta.page).toBe(2);
+      expect(body.meta.limit).toBe(10);
+      expect(body.meta.totalUsers).toBe(20);
+      expect(body.meta.totalPages).toBe(2);
+    });
+
+    it('should return an empty array for out-of-bounds page', async () => {
+      await createTestUsers(app, 20);
+
+      const res = await app.inject({
+        method: 'GET',
+        url: '/users?page=3&limit=10',
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.body);
+      expect(body.data.length).toBe(0);
+      expect(body.meta.page).toBe(3);
+      expect(body.meta.totalUsers).toBe(20);
+      expect(body.meta.totalPages).toBe(2);
+    });
+
+    it('should return 400 for invalid page query', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/users?page=not-a-number&limit=10',
+      });
+
       expect(res.statusCode).toBe(400);
     });
   });

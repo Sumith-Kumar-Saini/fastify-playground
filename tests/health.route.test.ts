@@ -1,18 +1,30 @@
 import * as healthCheck from '../src/utils/healthCheck';
 import { FastifyInstance } from 'fastify';
-import { setupTestApp, teardownTestApp } from './setup';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { buildApp } from '../src/app';
+import mongoose from 'mongoose';
 
 jest.mock('../src/utils/healthCheck');
 
 describe('/health route', () => {
+  let mongod: MongoMemoryServer;
   let app: FastifyInstance;
 
   beforeAll(async () => {
-    app = await setupTestApp();
+    mongod = await MongoMemoryServer.create();
+
+    app = buildApp({
+      mongoUri: mongod.getUri(),
+      logger: false,
+    });
+
+    await app.ready();
   });
 
   afterAll(async () => {
-    await teardownTestApp();
+    await app.close();
+    await mongoose.connection.close();
+    await mongod.stop();
   });
 
   it('returns 200 OK when all services are healthy', async () => {

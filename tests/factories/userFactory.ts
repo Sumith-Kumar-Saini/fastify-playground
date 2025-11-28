@@ -40,3 +40,10 @@ export async function createTestUser(app: FastifyInstance, overrides: Record<str
 
   return user;
 }
+
+export async function createTestUsers(app: FastifyInstance, limit: number) {
+  const userPromises = Array.from({ length: limit }, (_, i) =>
+    createTestUser(app, { email: `user${i + 1}@example.com` }),
+  );
+  return await Promise.all(userPromises);
+}
