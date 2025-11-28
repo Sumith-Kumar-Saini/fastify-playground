@@ -1,6 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, RouteGenericInterface } from 'fastify';
 import { Model } from 'mongoose';
 import { IUserDoc } from '../../models/user';
+import { sanitizePagination } from '../../utils/pagination-helper';
+import { getPaginatedUsers } from '../../services/user';
 
 type ServerWithModels = FastifyInstance & {
   models: {
@@ -32,16 +34,6 @@ export interface ParamUserId {
 }
 
 /**
- * Utility: safe parse integer with defaults and bounds
- */
-function parseLimit(input: string | undefined, defaultVal = 10, min = 1, max = 50): number {
-  if (!input) return defaultVal;
-  const parsed = Number.parseInt(input, 10);
-  if (Number.isNaN(parsed)) return defaultVal;
-  return Math.min(Math.max(parsed, min), max);
-}
-
-/**
  * Utility: standard error response body factory
  */
 function makeErrorResponse(statusCode: number, code: string, error: string, message: string) {
@@ -58,10 +50,29 @@ export async function getUsers(
   const { User } = request.server.models;
 
   try {
-    const limit = parseLimit(request.query.limit, 10, 1, 50);
-    const users = await User.find({}).limit(limit).lean().exec();
-    return reply.code(200).send(users);
+    const { page, limit } = sanitizePagination({
+      page: request.query.page,
+      limit: request.query.limit,
+    });
+
+    const results = await getPaginatedUsers({ page, limit }, User);
+    return reply.code(200).send(results);
   } catch (err) {
+    // Catch invalid pagination errors and return a 400
+    if (err instanceof Error && err.message.includes('must be positive integers')) {
+      return reply
+        .code(400)
+        .send(
+          makeErrorResponse(
+            400,
+            'BAD_REQUEST',
+            'Invalid Pagination',
+            'Page and limit must be positive integers.',
+          ),
+        );
+    }
+
+    // Catch all other errors
     request.server.log.error(err);
     return reply
       .code(500)
@@ -127,31 +138,22 @@ export async function createUser(
   const { name, email } = request.body;
 
   try {
+    if (await User.exists({ email })) {
+      reply.code(409);
+      return makeErrorResponse(
+        409,
+        'DUPLICATE_RESOURCE',
+        'Conflict',
+        'A user with this email address already exists.',
+      );
+    }
+
     const created = new User({ name, email });
     await created.save();
     // return saved document (toJSON/lean would be optional depending on model hooks)
     return reply.code(201).send(created);
   } catch (err: unknown) {
     request.server.log.error(err);
-
-    // Detect duplicate key (MongoError code 11000) robustly
-    // Mongoose may wrap errors; check common shapes
-    const anyErr = err as any;
-    const isDuplicateKey =
-      anyErr?.code === 11000 || (anyErr?.name === 'MongoServerError' && anyErr?.code === 11000);
-
-    if (isDuplicateKey) {
-      return reply
-        .code(409)
-        .send(
-          makeErrorResponse(
-            409,
-            'DUPLICATE_RESOURCE',
-            'Conflict',
-            'A user with this email address already exists.',
-          ),
-        );
-    }
 
     return reply
       .code(500)

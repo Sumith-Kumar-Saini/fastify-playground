@@ -5,12 +5,29 @@ export const QueryLimitSchema = {
   type: 'object',
   properties: {
     limit: { type: 'string', pattern: '^[0-9]+$' },
+    page: { type: 'string', pattern: '^[0-9]+$' },
   },
 } as const;
 
 export const UserListResponseSchema = {
-  type: 'array',
-  items: UserSchema,
+  type: 'object',
+  properties: {
+    data: {
+      type: 'array',
+      items: UserSchema, // List of users
+    },
+    meta: {
+      type: 'object',
+      properties: {
+        page: { type: 'integer' },
+        limit: { type: 'integer' },
+        totalUsers: { type: 'integer' },
+        totalPages: { type: 'integer' },
+      },
+      required: ['page', 'limit', 'totalUsers', 'totalPages'],
+    },
+  },
+  required: ['data', 'meta'],
 } as const;
 
 export const UserIdParamSchema = {
