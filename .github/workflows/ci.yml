@@ -3,8 +3,14 @@ name: CI
 on:
   push:
     branches: ["main"]  # Trigger CI on push to main branch
+    paths:
+      - 'src/*'
+      - 'tests/*'
   pull_request:
     branches: ["main"]  # Trigger on PR targeting the main branch
+    paths:
+      - 'src/*'
+      - 'tests/*'
 
 jobs:
   ci:
