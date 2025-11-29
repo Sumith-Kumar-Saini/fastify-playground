@@ -4,6 +4,8 @@ import type { Server } from 'http';
 const app = express();
 const port = 3000;
 
+app.disable('x-powered-by');
+
 app.get('/test', (req, res) => {
   res.send('Hello from Express!');
 });
