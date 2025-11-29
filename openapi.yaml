@@ -3,16 +3,30 @@ info:
   title: Fastify Playground API
   description: |
     This is the API for the **fastify-playground** project. It is designed to demonstrate and teach Fastify fundamentals, including routes, validation, error handling, and integration with MongoDB using Mongoose.
-  version: 1.0.2
+  version: 1.1.0
 
 servers:
   - url: http://localhost:3000
     description: Local Development Server
 
 paths:
-  /ping:
+  /health:
     get:
       summary: 'Health check endpoint'
+      description: Returns the health status of the application
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+
+  /ping:
+    get:
+      summary: 'ping check endpoint'
+      description: Responds with a simple "pong" to confirm the server is alive.
       operationId: pingCheck
       responses:
         '200':
@@ -204,6 +218,34 @@ paths:
 
 components:
   schemas:
+    HealthCheckResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: string
+          example: 'healthy'
+        message:
+          type: string
+          example: 'Application is running smoothly.'
+        services:
+          type: object
+          required:
+            - succeededServices
+            - failedServices
+          properties:
+            succeededServices:
+              type: array
+              items:
+                type: string
+              nullable: true
+            failedServices:
+              type: array
+              items:
+                type: string
+              nullable: true
     User:
       type: object
       required:
