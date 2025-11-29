@@ -1,17 +1,23 @@
 import express from 'express';
 import type { Server } from 'http';
 
-const app = express();
-const port = 3000;
+const buildApp = async (PORT: number = 3000): Promise<Server> => {
+  const app = express();
+  app.disable('x-powered-by');
 
-app.disable('x-powered-by');
+  app.get('/test', (req, res) => res.send('Hello from Express!'));
 
-app.get('/test', (req, res) => {
-  res.send('Hello from Express!');
-});
+  return new Promise((resolve, reject) => {
+    const server = app.listen(PORT, (err) => {
+      if (err) {
+        console.error('Express server failed to start:', err);
+        reject(err);
+      } else {
+        console.log(`Express server listening on port ${PORT}`);
+        resolve(server);
+      }
+    });
+  });
+};
 
-const server: Server = app.listen(port, () => {
-  console.log(`Express server listening on port ${port}`);
-});
-
-export default server;
+export default buildApp;
