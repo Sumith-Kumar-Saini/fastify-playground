@@ -6,6 +6,7 @@ const _config = {
   HOST: process.env.HOST || '0.0.0.0',
   NODE_ENV: process.env.NODE_ENV,
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+  JWT_SECRET: process.env.JWT_SECRET!,
 };
 
 const isTest = process.env.NODE_ENV === 'testing';

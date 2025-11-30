@@ -111,7 +111,8 @@ export async function getUserById(
           ),
         );
     }
-    return reply.code(200).send(user);
+    const token = request.server.jwt.sign({ id: user._id });
+    return reply.code(200).send({ user, token });
   } catch (err) {
     request.server.log.error(err);
     return reply
@@ -148,10 +149,10 @@ export async function createUser(
       );
     }
 
-    const created = new User({ name, email });
-    await created.save();
-    // return saved document (toJSON/lean would be optional depending on model hooks)
-    return reply.code(201).send(created);
+    const user = new User({ name, email });
+    await user.save();
+    const token = request.server.jwt.sign({ id: user._id });
+    return reply.code(201).send({ user, token });
   } catch (err: unknown) {
     request.server.log.error(err);
 

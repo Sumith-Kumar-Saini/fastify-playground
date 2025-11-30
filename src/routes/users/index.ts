@@ -6,6 +6,7 @@ import {
   UserIdParamSchema,
   CreateUserBodySchema,
   UpdateUserBodySchema,
+  UserTokenResponseSchema,
 } from './user.schema';
 import { ErrorSchema } from '../../schemas/error.schema';
 import {
@@ -43,7 +44,7 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _opts, done) =>
       schema: {
         body: CreateUserBodySchema,
         response: {
-          201: UserResponseSchema,
+          201: UserTokenResponseSchema,
           400: ErrorSchema,
           409: ErrorSchema,
           500: ErrorSchema,
@@ -60,7 +61,7 @@ const routes: FastifyPluginCallback = (fastify: FastifyInstance, _opts, done) =>
       schema: {
         params: UserIdParamSchema,
         response: {
-          200: UserResponseSchema,
+          200: UserTokenResponseSchema,
           404: ErrorSchema,
           500: ErrorSchema,
         },

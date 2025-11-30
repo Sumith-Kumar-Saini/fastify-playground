@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import fastifyJWT from '@fastify/jwt';
 import logger from './utils/logger-config';
 import UserRoutes from './routes/users';
 import HealthRoutes from './routes/health';
@@ -29,6 +30,7 @@ export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { 
   // Register plugins
   fastify.register(mongoPlugin, { uri: overrides?.mongoUri ?? ENV.MONGO_URI });
   fastify.register(modelsPlugin);
+  fastify.register(fastifyJWT, { secret: ENV.JWT_SECRET });
 
   // Register routes
   fastify.register(UserRoutes);

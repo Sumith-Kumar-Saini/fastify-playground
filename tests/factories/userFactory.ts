@@ -29,7 +29,8 @@ export async function createTestUser(app: FastifyInstance, overrides: Record<str
     throw new Error(`Invalid response body: ${res.body}`);
   }
 
-  const user = parsed as User;
+  const data = parsed as { user: User; token: string };
+  const user = data.user;
   if (
     typeof user._id !== 'string' ||
     typeof user.name !== 'string' ||
@@ -38,7 +39,7 @@ export async function createTestUser(app: FastifyInstance, overrides: Record<str
     throw new Error(`Response body does not match User shape: ${res.body}`);
   }
 
-  return user;
+  return data;
 }
 
 export async function createTestUsers(app: FastifyInstance, limit: number) {

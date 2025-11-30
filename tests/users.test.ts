@@ -48,7 +48,8 @@ describe('Users routes', () => {
 
       expect(res.statusCode).toBe(201);
       const body = JSON.parse(res.body);
-      expect(body.email).toBe('john@example.com');
+      expect(body.user.email).toBe('john@example.com');
+      expect(body.token).toBeDefined();
     });
 
     it('should return 409 on duplicate email', async () => {
@@ -170,7 +171,7 @@ describe('Users routes', () => {
   //
   describe('GET /users/:id', () => {
     it('should return a user', async () => {
-      const user = await createTestUser(app);
+      const { user } = await createTestUser(app);
 
       const res = await app.inject({
         method: 'GET',
@@ -179,7 +180,8 @@ describe('Users routes', () => {
 
       expect(res.statusCode).toBe(200);
       const body = JSON.parse(res.body);
-      expect(body._id).toBe(user._id);
+      expect(body.user._id).toBe(user._id);
+      expect(body.token).toBeDefined();
     });
 
     it('should return 400 for invalid ObjectId', async () => {
@@ -206,7 +208,7 @@ describe('Users routes', () => {
   //
   describe('PUT /users/:id', () => {
     it('should update a user', async () => {
-      const user = await createTestUser(app);
+      const { user } = await createTestUser(app);
 
       const res = await app.inject({
         method: 'PUT',
@@ -220,7 +222,7 @@ describe('Users routes', () => {
     });
 
     it('should return 400 for invalid email on update', async () => {
-      const user = await createTestUser(app);
+      const { user } = await createTestUser(app);
 
       const res = await app.inject({
         method: 'PUT',
@@ -247,7 +249,7 @@ describe('Users routes', () => {
   //
   describe('DELETE /users/:id', () => {
     it('should delete a user', async () => {
-      const user = await createTestUser(app);
+      const { user } = await createTestUser(app);
 
       const res = await app.inject({
         method: 'DELETE',

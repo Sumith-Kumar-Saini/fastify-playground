@@ -58,3 +58,12 @@ export const UpdateUserBodySchema = {
     email: { type: 'string', format: 'email' },
   },
 } as const;
+
+export const UserTokenResponseSchema = {
+  type: 'object',
+  properties: {
+    user: UserSchema,
+    token: { type: 'string' },
+  },
+  required: ['user', 'token'],
+};
