@@ -31,3 +31,6 @@ logs/
 # Test reports
 junit.xml
 test-report.xml
+
+# temporary files and folders
+temp/*
