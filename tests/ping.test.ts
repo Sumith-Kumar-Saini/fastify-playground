@@ -15,6 +15,7 @@ describe('Ping route', () => {
   it('should return pong', async () => {
     const app = buildApp({
       mongoUri: mongod.getUri(),
+      jwtSecret: 'supersecret',
       logger: false,
     });
 

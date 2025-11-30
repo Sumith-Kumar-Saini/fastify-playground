@@ -6,9 +6,15 @@ import HealthRoutes from './routes/health';
 import modelsPlugin from './plugins/models';
 import mongoPlugin from './plugins/mongoose';
 import ENV from './configs/env';
-import { customErrorHandler } from './utils/error-hander';
+import { customErrorHandler } from './utils/error-handler';
 
-export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { logger: true }) {
+interface BuildAppConfig {
+  jwtSecret?: string;
+  mongoUri?: string;
+  logger?: boolean;
+}
+
+export function buildApp(overrides: BuildAppConfig = { logger: true }) {
   const fastify = Fastify({
     logger: overrides?.logger ?? logger,
     ajv: {
@@ -30,7 +36,7 @@ export function buildApp(overrides: { mongoUri?: string; logger?: boolean } = { 
   // Register plugins
   fastify.register(mongoPlugin, { uri: overrides?.mongoUri ?? ENV.MONGO_URI });
   fastify.register(modelsPlugin);
-  fastify.register(fastifyJWT, { secret: ENV.JWT_SECRET });
+  fastify.register(fastifyJWT, { secret: overrides?.jwtSecret ?? ENV.JWT_SECRET });
 
   // Register routes
   fastify.register(UserRoutes);
