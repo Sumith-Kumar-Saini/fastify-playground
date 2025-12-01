@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import fastifyJWT from '@fastify/jwt';
+import fastifyCORS from '@fastify/cors';
 import logger from './utils/logger-config';
 import UserRoutes from './routes/users';
 import HealthRoutes from './routes/health';
@@ -37,6 +38,7 @@ export function buildApp(overrides: BuildAppConfig = { logger: true }) {
   fastify.register(mongoPlugin, { uri: overrides?.mongoUri ?? ENV.MONGO_URI });
   fastify.register(modelsPlugin);
   fastify.register(fastifyJWT, { secret: overrides?.jwtSecret ?? ENV.JWT_SECRET });
+  fastify.register(fastifyCORS, { origin: '*' });
 
   // Register routes
   fastify.register(UserRoutes);
